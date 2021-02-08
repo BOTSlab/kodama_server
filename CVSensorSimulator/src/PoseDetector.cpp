@@ -61,8 +61,21 @@ void PoseDetector::updatePoseEstimates(Mat* frame) {
 			else { // Estimate the pose of the TaggedObject
 				apriltag_pose_t pose;
 				detInfo.det = det;
-				estimate_tag_pose(&detInfo, &pose);
-				robots.at(index)->setPose(pose3Dto2D(pose, det->c[0], det->c[1], AngleUnit::RADIANS));
+
+// AV: The transform from 3D to 2D relies on an accurate camera calibration.
+// If the camera is viewing the operating area from above and the optical axis
+// is approximately perpendicular to the floor of the robot's arena, then we can
+// just use 2D image position.  So we disable this conversion.
+//				estimate_tag_pose(&detInfo, &pose);
+//				robots.at(index)->setPose(pose3Dto2D(pose, det->c[0], det->c[1], AngleUnit::RADIANS));
+pose2D pose2D;
+gettimeofday(&pose2D.timestamp, NULL);
+pose2D.x = det->c[0];
+pose2D.y = det->c[1];
+pose2D.yaw = atan2(det->p[1][1] - det->p[0][1], det->p[1][0] - det->p[0][0]);
+//pose2D.x_px = pose_x_px;
+//pose2D.y_px = pose_y_px;
+robots.at(index)->setPose(pose2D);
 			}
 		}
 	}
