@@ -73,6 +73,12 @@ cbar::cyclicbarrier* frameAcquisitionBarrier = new cbar::cyclicbarrier(2,cc);
 cbar::cyclicbarrier* detectorBarrier0 = new cbar::cyclicbarrier(3,cc);
 cbar::cyclicbarrier* detectorBarrier1 = new cbar::cyclicbarrier(3,cc);
 
+void afterImshow() {
+	if (waitKey(1) == 27) {
+		running = false;
+	}
+}
+
 /**
  * Video Capture thread function. Continuously updates the FrameBuffer.
  *
@@ -93,7 +99,7 @@ void video_capture_thread(FrameBuffer& fb) {
  */
 void apriltag_detector_thread(PoseDetector& pd, FrameBuffer& fb) {
 	Mat apriltag_frame(100, 100, CV_8UC3, Scalar(0,0,0));
-	imshow("CVSensorSimulator", apriltag_frame);
+	// imshow("apriltag_detector_thread - 1", apriltag_frame);
 	while (running) {
 		frame = fb.getFrame();
 		apriltag_frame = frame;
@@ -103,6 +109,8 @@ void apriltag_detector_thread(PoseDetector& pd, FrameBuffer& fb) {
 			pd.updatePoseEstimates(&apriltag_frame); 
 			if(visualize) {
 				labelledDetections = *pd.getLabelledFrame(config);
+				// imshow("apriltag_detector_thread - 2", labelledDetections);
+				// afterImshow();
 			}
 		}
 		
@@ -131,8 +139,8 @@ void target_detector_thread() {
 			bitwise_and(dead_zone_mask, targetMask, targetMask);
 			
 			//DEBUG
-			// imshow("Targets", targetMask);
-			// waitKey(1);
+			// imshow("target_detector_thread", targetMask);
+			// afterImshow();
 		} 
 		catch(cv::Exception) {} // Handles 0.56% chance cvtColor will throw cv::Exception error due to empty frame
 		
@@ -202,11 +210,8 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 				for(int i = 0; i < clusterCentroids.size(); i++) {
 					circle(displayFrame, clusterCentroids.at(i), 12, TargetMarkerColor, 2);
 				}
-				imshow("CVSensorSimulator", displayFrame);
-				// ESC key to exit
-				if (waitKey(1) == 27) {
-					running = false;
-				}
+				imshow("detection_processor_thread", displayFrame);
+				afterImshow();
 			}
 
 			if (output_csv) {
