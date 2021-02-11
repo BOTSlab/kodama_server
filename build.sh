@@ -25,24 +25,24 @@ src/apriltag/apriltag_quad_thresh.c \
 src/apriltag/tag25h9.c \
 src/apriltag/tag36h11.c
 
-# Build CVSensorSimulator Objects
+# Build Objects
 g++ -c -std=c++11 -pthread \
 src/ConfigParser.cpp \
 src/CVSS_util.cpp \
-src/CVSensorSimulator.cpp \
+src/kodama_server.cpp \
 src/cyclicbarrier.cpp \
 src/FrameBuffer.cpp \
-src/musv_msg.pb.cc \
+src/kodama_msg.pb.cc \
 src/PoseDetector.cpp \
 src/Robot.cpp
 
 # Compile Application
-g++ -std=c++11 -pthread -o CVSensorSimulator \
+g++ -std=c++11 -pthread -o kodama_server \
 apriltag.o \
 apriltag_pose.o \
 apriltag_quad_thresh.o \
 ConfigParser.o \
-CVSensorSimulator.o \
+kodama_server.o \
 CVSS_util.o \
 cyclicbarrier.o \
 FrameBuffer.o \
@@ -52,7 +52,7 @@ image_u8.o \
 image_u8x3.o \
 image_u8x4.o \
 matd.o \
-musv_msg.pb.o \
+kodama_msg.pb.o \
 pam.o \
 pjpeg.o \
 pjpeg-idct.o \
@@ -76,7 +76,7 @@ rm apriltag.o \
 apriltag_pose.o \
 apriltag_quad_thresh.o \
 ConfigParser.o \
-CVSensorSimulator.o \
+kodama_server.o \
 CVSS_util.o \
 cyclicbarrier.o \
 FrameBuffer.o \
@@ -86,7 +86,7 @@ image_u8.o \
 image_u8x3.o \
 image_u8x4.o \
 matd.o \
-musv_msg.pb.o \
+kodama_msg.pb.o \
 pam.o \
 pjpeg.o \
 pjpeg-idct.o \

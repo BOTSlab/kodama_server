@@ -1,0 +1,21 @@
+syntax = "proto3";
+package kodama;
+
+import "google/protobuf/timestamp.proto";
+
+message RequestData {
+	int32 tag_id = 1;
+}
+
+message SensorData {
+	message Pose2D {
+		int32 x = 1;
+		int32 y = 2;
+		float yaw = 3;
+	}
+	Pose2D pose = 1;
+	float centre_grid_sensor = 2;
+	repeated Pose2D nearby_vessel_poses = 3;
+	float highest_visible_puck_value = 4;
+	google.protobuf.Timestamp timestamp = 5;
+}

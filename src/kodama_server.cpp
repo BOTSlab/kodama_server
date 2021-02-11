@@ -1,8 +1,9 @@
 /**
- * CVSensorSimulator tracks the pose of objects fitted with AprilTags in view of
- * an overhead camera and sends that pose data to microUSV's over TCP.
+ * Modified version of CVSensorSimulator to implement the Lasso method on the Kodama robots.
  *
  * Copyright (C) 2019  CalvinGregory  cgregory@mun.ca
+ * 				 2021  Andrew Vardy	  av@mun.ca
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -41,7 +42,7 @@
 #include "CVSS_util.h"
 #include "cyclicbarrier.hpp"
 #include "CSVWriter.h"
-#include "musv_msg.pb.h"
+#include "kodama_msg.pb.h"
 
 extern "C" {
 #include "apriltag/apriltag.h"
@@ -61,6 +62,7 @@ ConfigParser::Config config;
 Mat frame;
 Mat labelledDetections;
 Mat targetMask;
+Mat scalarField;
 
 // Build global barriers
 class concrete_callable : public cbar::callable {
@@ -125,9 +127,9 @@ void apriltag_detector_thread(PoseDetector& pd, FrameBuffer& fb) {
  */
 void target_detector_thread() {
 	Mat hsv;
-	int dead_zone_thickness = 75;
-	Mat dead_zone_mask(720, 1280, CV_8U, Scalar(0,0,0));
-	rectangle(dead_zone_mask, Point(dead_zone_thickness, dead_zone_thickness), Point(1280 - dead_zone_thickness, 720 - dead_zone_thickness), Scalar(255,255,255), CV_FILLED);
+	//int dead_zone_thickness = 75;
+	//Mat dead_zone_mask(720, 1280, CV_8U, Scalar(0,0,0));
+	//rectangle(dead_zone_mask, Point(dead_zone_thickness, dead_zone_thickness), Point(1280 - dead_zone_thickness, 720 - dead_zone_thickness), Scalar(255,255,255), CV_FILLED);
 
 	while (running) {
 		frameAcquisitionBarrier->await();
@@ -136,7 +138,7 @@ void target_detector_thread() {
 			cvtColor(frame, hsv, COLOR_BGR2HSV);
 			cv::inRange(hsv, config.target_thresh_low, config.target_thresh_high, targetMask);
 			medianBlur(targetMask, targetMask, 7);
-			bitwise_and(dead_zone_mask, targetMask, targetMask);
+			//bitwise_and(dead_zone_mask, targetMask, targetMask);
 			
 			//DEBUG
 			// imshow("target_detector_thread", targetMask);
@@ -163,14 +165,7 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 	auto start_time = chrono::steady_clock::now();
 	Mat targets, displayFrame;
 	Scalar TargetMarkerColor(255, 0 ,255);
-	int threshold = 20; //TODO TUNE ME
-	// Estimate range of possible detection values in both axes (mm).
-	double FoV_diag_hyp = config.tag_plane_dist*1000 / 1.298125 / cos(config.cInfo.FoV_deg/2*M_PI/180); // Correction factor determined by trial and error. Unique to camera. ¯\_(ツ)_/¯
-	double FoV_diag_in_plane = FoV_diag_hyp * sin(config.cInfo.FoV_deg/2*M_PI/180);
-	double alpha = atan((double)config.cInfo.y_res/config.cInfo.x_res);
-	// Since origin is at center of the frame, max values are 1/2 of frame width. Full measurement range is [-max, +max].
-	double x_max_measurement = FoV_diag_in_plane * cos(alpha); 
-	// double y_max_measurement = FoV_diag_in_plane * sin(alpha);
+	int threshold = 50;
 
 	while (running) {
 		detectorBarrier0->await();
@@ -180,6 +175,7 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 		targets = targetMask.clone();
 		if(visualize) {
 			displayFrame = labelledDetections.clone();
+//displayFrame = targetMask.clone();
 		}
 		vector<pose2D> robot_poses;
 		for (int i = 0; i < robots.size(); i++) {
@@ -190,7 +186,7 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 		detectorBarrier1->reset();
 		
 		for (int i = 0; i < robots.size(); i++) {
-			robots.at(i)->updateSensorValues(targets, robot_poses, i, config.cInfo.x_res/x_max_measurement/2);
+			robots.at(i)->updateSensorValues(targets, scalarField, robot_poses, i);
 		}
 
 		if(visualize || output_csv) {
@@ -302,6 +298,8 @@ int main(int argc, char* argv[]) {
 		target_pose_csv.at(1).newRow() << "Timestamp [ns]" << "Number of Target Pixels" << "Average target pixel distance to cluster point";
 	}
 
+	scalarField = imread("screenshot.png", IMREAD_GRAYSCALE);
+
 	// Build thread parameter objects.
 	FrameBuffer fb(settings);
 	PoseDetector pd(info, robots);
@@ -361,10 +359,10 @@ int main(int argc, char* argv[]) {
 	struct timeval currentTime;
 
 	while (running) {
-		mUSV::RequestData requestData;
-		mUSV::SensorData sensorData;
+		kodama::RequestData requestData;
+		kodama::SensorData sensorData;
 
-		// Connect to microUSV and receive data.
+		// Connect to Kodama and receive data.
 		new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 		if(new_socket == -1) {
 			if (errno != EWOULDBLOCK) {
@@ -394,32 +392,19 @@ int main(int argc, char* argv[]) {
 			sensorData.mutable_pose()->set_x(sensorValues.pose.x);
 			sensorData.mutable_pose()->set_y(sensorValues.pose.y);
 			sensorData.mutable_pose()->set_yaw(sensorValues.pose.yaw);
-			sensorData.mutable_pose()->set_xpx(sensorValues.pose.x_px);
-			sensorData.mutable_pose()->set_ypx(sensorValues.pose.y_px);
+			//sensorData.mutable_pose()->set_xpx(sensorValues.pose.x_px);
+			//sensorData.mutable_pose()->set_ypx(sensorValues.pose.y_px);
+			sensorData.set_centre_grid_sensor(sensorValues.centreGridSensor);
 			for(int i = 0; i < sensorValues.nearbyVesselPoses.size(); i++) {
-				mUSV::SensorData_Pose2D* nearbyVessel = sensorData.add_nearby_vessel_poses();
+				kodama::SensorData_Pose2D* nearbyVessel = sensorData.add_nearby_vessel_poses();
 				nearbyVessel->set_x(sensorValues.nearbyVesselPoses.at(i).x);
 				nearbyVessel->set_y(sensorValues.nearbyVesselPoses.at(i).y);
 				nearbyVessel->set_yaw(sensorValues.nearbyVesselPoses.at(i).yaw);
-				nearbyVessel->set_xpx(sensorValues.nearbyVesselPoses.at(i).x_px);
-				nearbyVessel->set_ypx(sensorValues.nearbyVesselPoses.at(i).y_px);
+				//nearbyVessel->set_xpx(sensorValues.nearbyVesselPoses.at(i).x_px);
+				//nearbyVessel->set_ypx(sensorValues.nearbyVesselPoses.at(i).y_px);
 			}
-			for(int i = 0 ; i < sensorValues.targetSensors.size(); i++) {
-				sensorData.add_target_sensors(sensorValues.targetSensors.at(i));
-			}
-			sensorData.mutable_clusterpoint()->set_range(sensorValues.cluster_point_range);
-			sensorData.mutable_clusterpoint()->set_heading(sensorValues.cluster_point_heading);
+			sensorData.set_highest_visible_puck_value(sensorValues.highestVisiblePuckValue);
 			*sensorData.mutable_timestamp() = TimeUtil::MicrosecondsToTimestamp(seconds * 1e6 + uSeconds);
-
-			if(requestData.request_waypoints()) {
-				for (std::vector<ConfigParser::Waypoint>::iterator it = config.waypoints.begin(); it != config.waypoints.end(); it++) {
-					mUSV::SensorData::Waypoint* waypoint = sensorData.add_waypoints();
-					waypoint->set_x(it->x);
-					waypoint->set_y(it->y);
-				}
-
-				sensorData.set_loop_waypoints(config.loop_waypoints);
-			}
 
 			size_t size = sensorData.ByteSizeLong();
 			char* msg = new char [size];
