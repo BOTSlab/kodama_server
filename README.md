@@ -26,6 +26,10 @@ The application uses a json config file to which should be modified to reflect a
 | target_hsv_thresh_high:s | Integer | Target detection color threshold upper bound. Saturation |
 | target_hsv_thresh_high:v | Integer | Target detection color threshold upper bound. Value |
 | Robots | Integer, String | List of all robots being used and their associated AprilTag ID numbers and labels |
+
+*No Longer Supported:* The following fields in the json config file are no longer supported:
+| Config Field | Type |  Value |
+|:---          |:---: |:---    |
 | Waypoints | Float, Float | List of waypoint coordinates to send to each microUSV |
 | loop_waypoints | Boolean | Flag indicating if waypoint list should be repeated after each one has been reached |
 | output_csv | Boolean | Flag indicating if the application should export the pose history for each robot to a CSV file |
@@ -33,5 +37,7 @@ The application uses a json config file to which should be modified to reflect a
 To launch the application, navigate to the kodama_server binary and execute the following:
 
 ```
-$ ./kodama_server [PATH_TO_CONFIG.JSON]
+$ ./kodama_server
 ```
+
+The file `config.json` must be present.
