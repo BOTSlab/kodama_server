@@ -1,0 +1,30 @@
+{
+	"visualize": true,
+	
+	"cameraInfo": {
+		"cameraID": 4,
+		"x_res": 1280,
+		"y_res": 720,
+		"fx": 923.90574729558500,
+		"fy": 923.90574729558500,
+		"cx": 640,
+		"cy": 360, 
+		"FoV_deg": 94
+	},
+	
+	"tagsize": 49.5,
+
+	"tag_plane_distance": 1.0,
+
+	"target_hsv_thresh_low": {"h": 2, "s": 100, "v": 0},
+
+	"target_hsv_thresh_high": {"h": 8, "s": 255, "v": 255},
+	
+	"Robots": [
+		{"tagID": 6, "label": "r6"}
+	],
+	
+	"loop_waypoints": false,
+	
+	"output_csv": false
+}

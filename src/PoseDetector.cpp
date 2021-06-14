@@ -70,8 +70,12 @@ void PoseDetector::updatePoseEstimates(Mat* frame) {
 //				robots.at(index)->setPose(pose3Dto2D(pose, det->c[0], det->c[1], AngleUnit::RADIANS));
 pose2D pose2D;
 gettimeofday(&pose2D.timestamp, NULL);
-pose2D.x = det->c[0];
-pose2D.y = det->c[1];
+
+//pose2D.x = det->c[0];
+//pose2D.y = det->c[1];
+pose2D.x = (det->p[0][0] + det->p[1][0] + det->p[2][0] + det->p[3][0]) / 4.0;
+pose2D.y = (det->p[0][1] + det->p[1][1] + det->p[2][1] + det->p[3][1]) / 4.0;
+
 pose2D.yaw = atan2(det->p[1][1] - det->p[0][1], det->p[1][0] - det->p[0][0]);
 //pose2D.x_px = pose_x_px;
 //pose2D.y_px = pose_y_px;

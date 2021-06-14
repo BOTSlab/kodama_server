@@ -22,6 +22,7 @@
  */
 
 #include "Robot.h"
+#include "Angles.h"
 
 using namespace std;
 using namespace cv;
@@ -29,7 +30,8 @@ using namespace cv;
 Robot::Robot(int tagID, string label, int img_width, int img_height) {
 	this->tagID = tagID;
 	this->label = label;
-	this->communication_range = 600;
+	this->robot_sensing_distance = DBL_MAX; // No range restriction
+	this->target_sensing_distance = DBL_MAX; // No range restriction
 
 	this->x_res = img_width;
 	this->y_res = img_height;
@@ -41,24 +43,28 @@ Robot::Robot(int tagID, string label, int img_width, int img_height) {
 Robot::~Robot() {
 }
 
-void Robot::updateSensorValues(Mat targets, Mat scalarField, vector<pose2D> Robot_poses, int my_index) {
+void Robot::updateSensorValues(vector<position2D> allTargets, vector<pose2D> Robot_poses, int my_index) {
 	sensorVals_incomplete.pose = Robot_poses.at(my_index);
 	
-	int col = (int) round(sensorVals_incomplete.pose.x);
-	int row = (int) round(sensorVals_incomplete.pose.y);
-	sensorVals_incomplete.centreGridSensor = scalarField.at<uchar>(row, col) / 255.0;
-	
-	sensorVals_incomplete.nearbyVesselPoses.clear();
+	int robotX = (int) round(sensorVals_incomplete.pose.x);
+	int robotY = (int) round(sensorVals_incomplete.pose.y);
+	double robotAngle = Robot_poses.at(my_index).yaw;
+
+	sensorVals_incomplete.nearbyRobotPoses.clear();
 	for (int i = 0; i < Robot_poses.size(); i++) {
 		if(i != my_index) {
 			double range = getTargetRange(Robot_poses.at(my_index), Robot_poses.at(i));
-			if(range < communication_range) {
-				sensorVals_incomplete.nearbyVesselPoses.push_back(Robot_poses.at(i));
+			if(range <= robot_sensing_distance) {
+				sensorVals_incomplete.nearbyRobotPoses.push_back(Robot_poses.at(i));
 			}
 		}
 	}
 
-	sensorVals_incomplete.highestVisiblePuckValue = 42;
+	sensorVals_incomplete.nearbyTargetPositions.clear();
+	for (position2D target : allTargets)
+		if (hypot(target.y_px - robotY, target.x_px - robotX) <= target_sensing_distance)
+			sensorVals_incomplete.nearbyTargetPositions.push_back(target);
+//std::cerr << "number of targets: " << sensorVals_incomplete.nearbyTargetPositions.size() << endl;
 
 	std::lock_guard<std::mutex> lock(sensorVal_lock);
 	sensorVals_complete = sensorVals_incomplete;

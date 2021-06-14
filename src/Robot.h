@@ -27,14 +27,21 @@
 #include <mutex>
 #include "opencv2/opencv.hpp"
 
+struct position2D {
+	position2D(uint x, uint y)
+		: x_px{x}, y_px{y}
+	{}
+	uint x_px = 0;
+	uint y_px = 0;
+};
+
 /**
  * SensorValues is a struct containing all data contained in a SensorData message. 
  */ 
 typedef struct {
 	pose2D pose;
-	double centreGridSensor;
-	std::vector<pose2D> nearbyVesselPoses;
-	double highestVisiblePuckValue;
+	std::vector<position2D> nearbyTargetPositions;
+	std::vector<pose2D> nearbyRobotPoses;
 } SensorValues;
 
 /**
@@ -44,7 +51,8 @@ class Robot : public TaggedObject {
 protected:
 	int x_res;
 	int y_res;
-	double communication_range;
+	double robot_sensing_distance;
+	double target_sensing_distance;
 	std::mutex sensorVal_lock;
 	SensorValues sensorVals_complete;
 	SensorValues sensorVals_incomplete;
@@ -62,12 +70,11 @@ public:
 	/**
 	 * Updates the SensorValues stored in this Robot based on the provided list of Robot poses and target mask.
 	 * 
-	 * @param targets An image mask of all targets detected in the camera frame. Pixels of the target color
-	 * are white while all other pixels are black.
+	 * @param allTargets All targets detected in the camera frame.
 	 * @param Robot_poses Vector of poses for each Robot in the system.
 	 * @param my_index The index of this Robot in the Robot_poses vector.
 	 */
-	void updateSensorValues(cv::Mat targets, cv::Mat scalarField, std::vector<pose2D> Robot_poses, int my_index); 
+	void updateSensorValues(std::vector<position2D> allTargets, std::vector<pose2D> Robot_poses, int my_index);
 	/**
 	 * Retrieves the most recent SensorValues stored in this Robot. This function is thread safe.
 	 * 

@@ -1,9 +1,8 @@
 /**
- * Modified version of CVSensorSimulator to implement the Lasso method on the Kodama robots.
+ * CVSensorSimulator tracks the pose of objects fitted with AprilTags in view of
+ * an overhead camera and sends that pose data to microUSV's over TCP.
  *
  * Copyright (C) 2019  CalvinGregory  cgregory@mun.ca
- * 				 2021  Andrew Vardy	  av@mun.ca
- * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -62,19 +61,6 @@ ConfigParser::Config config;
 Mat frame;
 Mat labelledDetections;
 Mat targetMask;
-
-// BAD: Hard-coded goal position.
-Point goalPosition{310, 245};
-
-// Images that will be loaded from local files.
-Mat freeSpace, scalarField;//, goal;
-
-// The last request from a client.  Made it global so we can use it for
-// visualization.
-kodama::RequestData requestData;
-
-// Threshold on cluster area to count as a target.
-int areaThreshold = 150;
 
 // Build global barriers
 class concrete_callable : public cbar::callable {
@@ -139,9 +125,9 @@ void apriltag_detector_thread(PoseDetector& pd, FrameBuffer& fb) {
  */
 void target_detector_thread() {
 	Mat hsv;
-	//int dead_zone_thickness = 75;
-	//Mat dead_zone_mask(720, 1280, CV_8U, Scalar(0,0,0));
-	//rectangle(dead_zone_mask, Point(dead_zone_thickness, dead_zone_thickness), Point(1280 - dead_zone_thickness, 720 - dead_zone_thickness), Scalar(255,255,255), CV_FILLED);
+	int dead_zone_thickness = 75;
+	Mat dead_zone_mask(720, 1280, CV_8U, Scalar(0,0,0));
+	rectangle(dead_zone_mask, Point(dead_zone_thickness, dead_zone_thickness), Point(1280 - dead_zone_thickness, 720 - dead_zone_thickness), Scalar(255,255,255), CV_FILLED);
 
 	while (running) {
 		frameAcquisitionBarrier->await();
@@ -150,8 +136,7 @@ void target_detector_thread() {
 			cvtColor(frame, hsv, COLOR_BGR2HSV);
 			cv::inRange(hsv, config.target_thresh_low, config.target_thresh_high, targetMask);
 			medianBlur(targetMask, targetMask, 7);
-
-			bitwise_and(freeSpace, targetMask, targetMask);
+			bitwise_and(dead_zone_mask, targetMask, targetMask);
 			
 			//DEBUG
 			// imshow("target_detector_thread", targetMask);
@@ -177,10 +162,16 @@ void target_detector_thread() {
 void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<Robot>>& robots, vector<CSVWriter>& vessel_pose_csv, vector<CSVWriter>& target_pose_csv, bool output_csv) {
 	auto start_time = chrono::steady_clock::now();
 	Mat targets, displayFrame;
-	Scalar ContourColor(255, 0, 0);
-	Scalar TargetMarkerColor(255, 200, 200);
-	Scalar PuckMarkerColor(0, 255 ,0);
-	Scalar GoalColor(0, 0, 255);
+	Scalar TargetMarkerColor(255, 0 ,255);
+	int threshold = 20; //TODO TUNE ME
+threshold = 70;
+	// Estimate range of possible detection values in both axes (mm).
+	double FoV_diag_hyp = config.tag_plane_dist*1000 / 1.298125 / cos(config.cInfo.FoV_deg/2*M_PI/180); // Correction factor determined by trial and error. Unique to camera. ¯\_(ツ)_/¯
+	double FoV_diag_in_plane = FoV_diag_hyp * sin(config.cInfo.FoV_deg/2*M_PI/180);
+	double alpha = atan((double)config.cInfo.y_res/config.cInfo.x_res);
+	// Since origin is at center of the frame, max values are 1/2 of frame width. Full measurement range is [-max, +max].
+	double x_max_measurement = FoV_diag_in_plane * cos(alpha); 
+	// double y_max_measurement = FoV_diag_in_plane * sin(alpha);
 
 	while (running) {
 		detectorBarrier0->await();
@@ -190,16 +181,7 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 		targets = targetMask.clone();
 		if(visualize) {
 			displayFrame = labelledDetections.clone();
-
-			// Create a BGR version of targetMask for display purposes.
-			Mat targetMaskBGR;
-			cvtColor(targetMask, targetMaskBGR, CV_GRAY2BGR);
-
-			// This will highlight pixels in the target colour in white.
-			bitwise_or(targetMaskBGR, displayFrame, displayFrame);
-
-			// Highlight the goal.
-			//addWeighted(goal, 0.1, displayFrame, 0.9, 0, displayFrame);
+//displayFrame = targetMask.clone();
 		}
 		vector<pose2D> robot_poses;
 		for (int i = 0; i < robots.size(); i++) {
@@ -208,55 +190,28 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 		
 		detectorBarrier1->await(); 
 		detectorBarrier1->reset();
-
-		// Detect all targets
-		Mat labelImage(targetMask.size(), CV_32S);
-		Mat stats, centroids;
-		int nLabels = connectedComponentsWithStats(targets, labelImage, stats, centroids, 4, CV_32S);
-		vector<position2D> allTargets;
-		for (int i = 1; i < nLabels; i++) {
-			if (stats.at<int>(i, cv::CC_STAT_AREA) > areaThreshold) {
-				int x = cvRound(centroids.at<double>(i, 0));
-				int y = cvRound(centroids.at<double>(i, 1));
-				allTargets.push_back(position2D(x, y));
-			}
-		}
 		
-		for (int i = 0; i < robots.size(); i++)
-			robots.at(i)->updateSensorValues(allTargets, robot_poses, i);
+		for (int i = 0; i < robots.size(); i++) {
+			robots.at(i)->updateSensorValues(targets, robot_poses, i, config.cInfo.x_res/x_max_measurement/2);
+		}
 
 		if(visualize || output_csv) {
+			Mat labelImage(targetMask.size(), CV_32S);
+			Mat stats, centroids;
+			int nLabels = connectedComponentsWithStats(targets, labelImage, stats, centroids, 4, CV_32S);
+			vector<Point> clusterCentroids;
+			for (int i = 2; i <= nLabels; i++) {
+				if (stats.at<int>(i-1, cv::CC_STAT_AREA) > threshold) {
+					int x = cvRound(centroids.at<double>(i-1, 0));
+					int y = cvRound(centroids.at<double>(i-1, 1));
+					clusterCentroids.push_back(Point(x,y));
+				}
+			}
 
 			if (visualize) {
-				for(int i = 0; i < allTargets.size(); i++) {
-					position2D & p = allTargets.at(i);
-					circle(displayFrame, Point(p.x_px, p.y_px), 12, PuckMarkerColor, 2);
+				for(int i = 0; i < clusterCentroids.size(); i++) {
+					circle(displayFrame, clusterCentroids.at(i), 12, TargetMarkerColor, 2);
 				}
-
-				// Display the contour from the last connected robot.
-				double tau = requestData.tau() / 1000.0;
-
-				// CAN'T GET THIS TO WORK: OpenCV's contour-finding
-				/*
-				std::vector<std::vector<Point>> contours;
-				findContours(scalarField, contours, RETR_LIST, CHAIN_APPROX_NONE);
-				drawContours(displayFrame, contours, 0, TargetMarkerColor); 
-				*/
-			/*
-				for (int j=0; j < scalarField.rows; ++j)
-					for (int i=0; i < scalarField.cols; ++i)
-						if (abs(scalarField.at<uchar>(j, i) / 255.0 - tau) < 0.01) {
-							circle(displayFrame, Point{i, j}, 1, ContourColor, 1);
-						}
-			*/
-
-				// Display the target position from the last connected robot.
-				circle(displayFrame, Point{requestData.targetx(), requestData.targety()}, 5, TargetMarkerColor, 1);
-
-				// Display the goal position as an X.
-				line(displayFrame, goalPosition + Point{-20, -20}, goalPosition + Point{20, 20}, GoalColor, 3);
-				line(displayFrame, goalPosition + Point{-20, 20}, goalPosition + Point{20, -20}, GoalColor, 3);
-
 				imshow("detection_processor_thread", displayFrame);
 				afterImshow();
 			}
@@ -266,10 +221,9 @@ void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<
 				for(uint i = 0; i < vessel_pose_csv.size(); i++) {
 					vessel_pose_csv.at(i).newRow() << timestamp << robot_poses.at(i).x << robot_poses.at(i).y << robot_poses.at(i).yaw;
 				}
-				target_pose_csv.at(0).newRow() << timestamp << allTargets.size();
-				for(uint i = 0; i < allTargets.size(); i++) {
-					position2D &target = allTargets.at(i);
-					target_pose_csv.at(0) << "" << target.x_px << target.y_px;
+				target_pose_csv.at(0).newRow() << timestamp << clusterCentroids.size();
+				for(uint i = 0; i < clusterCentroids.size(); i++) {
+					target_pose_csv.at(0) << "" << clusterCentroids.at(i).x << clusterCentroids.at(i).y;
 				}
 
 				int nRows = targets.rows;
@@ -350,15 +304,6 @@ int main(int argc, char* argv[]) {
 		target_pose_csv.at(1).newRow() << "Timestamp [ns]" << "Number of Target Pixels" << "Average target pixel distance to cluster point";
 	}
 
-	// Load images.  Make the goal image contain red only.
-	Mat obstacles = imread("../images/live/stadium_one_wall/obstacles.png", IMREAD_GRAYSCALE);
-	bitwise_not(obstacles, freeSpace);
-	scalarField = imread("../images/live/stadium_one_wall/dtg.png", IMREAD_GRAYSCALE);
-	//bitwise_not(imread("../images/live/stadium_one_wall/goal.png", IMREAD_COLOR), goal);
-
-	// This is done just so that a contour won't be shown if there are no robots responding yet.
-	requestData.set_tau(-1);
-
 	// Build thread parameter objects.
 	FrameBuffer fb(settings);
 	PoseDetector pd(info, robots);
@@ -418,10 +363,10 @@ int main(int argc, char* argv[]) {
 	struct timeval currentTime;
 
 	while (running) {
-		//kodama::RequestData requestData;
+		kodama::RequestData requestData;
 		kodama::SensorData sensorData;
 
-		// Connect to Kodama and receive data.
+		// Connect to microUSV and receive data.
 		new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 		if(new_socket == -1) {
 			if (errno != EWOULDBLOCK) {
@@ -433,7 +378,6 @@ int main(int argc, char* argv[]) {
 			read(new_socket, buffer, 128);
 			if (!requestData.ParseFromString(buffer)) {
 				cerr << "Failed to parse Request Data message." << endl;
-				cerr << "buffer: " << buffer << endl;
 				return -1;
 			}
 
@@ -452,27 +396,34 @@ int main(int argc, char* argv[]) {
 			sensorData.mutable_pose()->set_x(sensorValues.pose.x);
 			sensorData.mutable_pose()->set_y(sensorValues.pose.y);
 			sensorData.mutable_pose()->set_yaw(sensorValues.pose.yaw);
-			//sensorData.mutable_pose()->set_xpx(sensorValues.pose.x_px);
-			//sensorData.mutable_pose()->set_ypx(sensorValues.pose.y_px);
-			for(int i = 0; i < sensorValues.nearbyRobotPoses.size(); i++) {
-				kodama::SensorData_Pose2D* nearbyVessel = sensorData.add_nearby_robot_poses();
-				nearbyVessel->set_x(sensorValues.nearbyRobotPoses.at(i).x);
-				nearbyVessel->set_y(sensorValues.nearbyRobotPoses.at(i).y);
-				nearbyVessel->set_yaw(sensorValues.nearbyRobotPoses.at(i).yaw);
-				//nearbyVessel->set_xpx(sensorValues.nearbyVesselPoses.at(i).x_px);
-				//nearbyVessel->set_ypx(sensorValues.nearbyVesselPoses.at(i).y_px);
+			sensorData.mutable_pose()->set_xpx(sensorValues.pose.x_px);
+			sensorData.mutable_pose()->set_ypx(sensorValues.pose.y_px);
+			for(int i = 0; i < sensorValues.nearbyVesselPoses.size(); i++) {
+				kodama::SensorData_Pose2D* nearbyVessel = sensorData.add_nearby_vessel_poses();
+				nearbyVessel->set_x(sensorValues.nearbyVesselPoses.at(i).x);
+				nearbyVessel->set_y(sensorValues.nearbyVesselPoses.at(i).y);
+				nearbyVessel->set_yaw(sensorValues.nearbyVesselPoses.at(i).yaw);
+				nearbyVessel->set_xpx(sensorValues.nearbyVesselPoses.at(i).x_px);
+				nearbyVessel->set_ypx(sensorValues.nearbyVesselPoses.at(i).y_px);
 			}
-			for(int i = 0; i < sensorValues.nearbyTargetPositions.size(); i++) {
-				kodama::SensorData_Position2D* nearbyTarget = sensorData.add_nearby_target_positions();
-				nearbyTarget->set_x(sensorValues.nearbyTargetPositions.at(i).x_px);
-				nearbyTarget->set_y(sensorValues.nearbyTargetPositions.at(i).y_px);
-				//nearbyVessel->set_xpx(sensorValues.nearbyVesselPoses.at(i).x_px);
-				//nearbyVessel->set_ypx(sensorValues.nearbyVesselPoses.at(i).y_px);
+			for(int i = 0 ; i < sensorValues.targetSensors.size(); i++) {
+				sensorData.add_target_sensors(sensorValues.targetSensors.at(i));
 			}
+			sensorData.mutable_clusterpoint()->set_range(sensorValues.cluster_point_range);
+			sensorData.mutable_clusterpoint()->set_heading(sensorValues.cluster_point_heading);
 			*sensorData.mutable_timestamp() = TimeUtil::MicrosecondsToTimestamp(seconds * 1e6 + uSeconds);
 
+			if(requestData.request_waypoints()) {
+				for (std::vector<ConfigParser::Waypoint>::iterator it = config.waypoints.begin(); it != config.waypoints.end(); it++) {
+					kodama::SensorData::Waypoint* waypoint = sensorData.add_waypoints();
+					waypoint->set_x(it->x);
+					waypoint->set_y(it->y);
+				}
+
+				sensorData.set_loop_waypoints(config.loop_waypoints);
+			}
+
 			size_t size = sensorData.ByteSizeLong();
-//std::cerr << "SensorData size (bytes): " << size << endl;
 			char* msg = new char [size];
 			sensorData.SerializeToArray(msg, size);
 

@@ -18,11 +18,16 @@
 
 extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_kodama_5fmsg_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_SensorData_Pose2D_kodama_5fmsg_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_kodama_5fmsg_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_SensorData_Position2D_kodama_5fmsg_2eproto;
 namespace kodama {
 class RequestDataDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<RequestData> _instance;
 } _RequestData_default_instance_;
+class SensorData_Position2DDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<SensorData_Position2D> _instance;
+} _SensorData_Position2D_default_instance_;
 class SensorData_Pose2DDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<SensorData_Pose2D> _instance;
@@ -45,6 +50,20 @@ static void InitDefaultsRequestData_kodama_5fmsg_2eproto() {
 
 ::google::protobuf::internal::SCCInfo<0> scc_info_RequestData_kodama_5fmsg_2eproto =
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsRequestData_kodama_5fmsg_2eproto}, {}};
+
+static void InitDefaultsSensorData_Position2D_kodama_5fmsg_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::kodama::_SensorData_Position2D_default_instance_;
+    new (ptr) ::kodama::SensorData_Position2D();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::kodama::SensorData_Position2D::InitAsDefaultInstance();
+}
+
+::google::protobuf::internal::SCCInfo<0> scc_info_SensorData_Position2D_kodama_5fmsg_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsSensorData_Position2D_kodama_5fmsg_2eproto}, {}};
 
 static void InitDefaultsSensorData_Pose2D_kodama_5fmsg_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -71,18 +90,20 @@ static void InitDefaultsSensorData_kodama_5fmsg_2eproto() {
   ::kodama::SensorData::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<2> scc_info_SensorData_kodama_5fmsg_2eproto =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsSensorData_kodama_5fmsg_2eproto}, {
+::google::protobuf::internal::SCCInfo<3> scc_info_SensorData_kodama_5fmsg_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 3, InitDefaultsSensorData_kodama_5fmsg_2eproto}, {
       &scc_info_SensorData_Pose2D_kodama_5fmsg_2eproto.base,
+      &scc_info_SensorData_Position2D_kodama_5fmsg_2eproto.base,
       &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
 
 void InitDefaults_kodama_5fmsg_2eproto() {
   ::google::protobuf::internal::InitSCC(&scc_info_RequestData_kodama_5fmsg_2eproto.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_SensorData_Position2D_kodama_5fmsg_2eproto.base);
   ::google::protobuf::internal::InitSCC(&scc_info_SensorData_Pose2D_kodama_5fmsg_2eproto.base);
   ::google::protobuf::internal::InitSCC(&scc_info_SensorData_kodama_5fmsg_2eproto.base);
 }
 
-::google::protobuf::Metadata file_level_metadata_kodama_5fmsg_2eproto[3];
+::google::protobuf::Metadata file_level_metadata_kodama_5fmsg_2eproto[4];
 constexpr ::google::protobuf::EnumDescriptor const** file_level_enum_descriptors_kodama_5fmsg_2eproto = nullptr;
 constexpr ::google::protobuf::ServiceDescriptor const** file_level_service_descriptors_kodama_5fmsg_2eproto = nullptr;
 
@@ -93,6 +114,19 @@ const ::google::protobuf::uint32 TableStruct_kodama_5fmsg_2eproto::offsets[] PRO
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::kodama::RequestData, tag_id_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, v_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, w_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, tau_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, scenario_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, targetx_),
+  PROTOBUF_FIELD_OFFSET(::kodama::RequestData, targety_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::kodama::SensorData_Position2D, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::kodama::SensorData_Position2D, x_),
+  PROTOBUF_FIELD_OFFSET(::kodama::SensorData_Position2D, y_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::kodama::SensorData_Pose2D, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -107,19 +141,20 @@ const ::google::protobuf::uint32 TableStruct_kodama_5fmsg_2eproto::offsets[] PRO
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::kodama::SensorData, pose_),
-  PROTOBUF_FIELD_OFFSET(::kodama::SensorData, centre_grid_sensor_),
-  PROTOBUF_FIELD_OFFSET(::kodama::SensorData, nearby_vessel_poses_),
-  PROTOBUF_FIELD_OFFSET(::kodama::SensorData, highest_visible_puck_value_),
+  PROTOBUF_FIELD_OFFSET(::kodama::SensorData, nearby_robot_poses_),
+  PROTOBUF_FIELD_OFFSET(::kodama::SensorData, nearby_target_positions_),
   PROTOBUF_FIELD_OFFSET(::kodama::SensorData, timestamp_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::kodama::RequestData)},
-  { 6, -1, sizeof(::kodama::SensorData_Pose2D)},
-  { 14, -1, sizeof(::kodama::SensorData)},
+  { 12, -1, sizeof(::kodama::SensorData_Position2D)},
+  { 19, -1, sizeof(::kodama::SensorData_Pose2D)},
+  { 27, -1, sizeof(::kodama::SensorData)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::kodama::_RequestData_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::kodama::_SensorData_Position2D_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::kodama::_SensorData_Pose2D_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::kodama::_SensorData_default_instance_),
 };
@@ -127,25 +162,28 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
 ::google::protobuf::internal::AssignDescriptorsTable assign_descriptors_table_kodama_5fmsg_2eproto = {
   {}, AddDescriptors_kodama_5fmsg_2eproto, "kodama_msg.proto", schemas,
   file_default_instances, TableStruct_kodama_5fmsg_2eproto::offsets,
-  file_level_metadata_kodama_5fmsg_2eproto, 3, file_level_enum_descriptors_kodama_5fmsg_2eproto, file_level_service_descriptors_kodama_5fmsg_2eproto,
+  file_level_metadata_kodama_5fmsg_2eproto, 4, file_level_enum_descriptors_kodama_5fmsg_2eproto, file_level_service_descriptors_kodama_5fmsg_2eproto,
 };
 
 const char descriptor_table_protodef_kodama_5fmsg_2eproto[] =
   "\n\020kodama_msg.proto\022\006kodama\032\037google/proto"
-  "buf/timestamp.proto\"\035\n\013RequestData\022\016\n\006ta"
-  "g_id\030\001 \001(\005\"\211\002\n\nSensorData\022\'\n\004pose\030\001 \001(\0132"
-  "\031.kodama.SensorData.Pose2D\022\032\n\022centre_gri"
-  "d_sensor\030\002 \001(\002\0226\n\023nearby_vessel_poses\030\003 "
-  "\003(\0132\031.kodama.SensorData.Pose2D\022\"\n\032highes"
-  "t_visible_puck_value\030\004 \001(\002\022-\n\ttimestamp\030"
-  "\005 \001(\0132\032.google.protobuf.Timestamp\032+\n\006Pos"
-  "e2D\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\013\n\003yaw\030\003 \001(\002b\006"
-  "proto3"
+  "buf/timestamp.proto\"t\n\013RequestData\022\016\n\006ta"
+  "g_id\030\001 \001(\005\022\t\n\001v\030\002 \001(\005\022\t\n\001w\030\003 \001(\005\022\013\n\003tau\030"
+  "\004 \001(\005\022\020\n\010scenario\030\006 \001(\005\022\017\n\007targetX\030\007 \001(\005"
+  "\022\017\n\007targetY\030\010 \001(\005\"\254\002\n\nSensorData\022\'\n\004pose"
+  "\030\001 \001(\0132\031.kodama.SensorData.Pose2D\0225\n\022nea"
+  "rby_robot_poses\030\002 \003(\0132\031.kodama.SensorDat"
+  "a.Pose2D\022>\n\027nearby_target_positions\030\003 \003("
+  "\0132\035.kodama.SensorData.Position2D\022-\n\ttime"
+  "stamp\030\004 \001(\0132\032.google.protobuf.Timestamp\032"
+  "\"\n\nPosition2D\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\032+\n\006P"
+  "ose2D\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\013\n\003yaw\030\003 \001(\002"
+  "b\006proto3"
   ;
 ::google::protobuf::internal::DescriptorTable descriptor_table_kodama_5fmsg_2eproto = {
   false, InitDefaults_kodama_5fmsg_2eproto, 
   descriptor_table_protodef_kodama_5fmsg_2eproto,
-  "kodama_msg.proto", &assign_descriptors_table_kodama_5fmsg_2eproto, 366,
+  "kodama_msg.proto", &assign_descriptors_table_kodama_5fmsg_2eproto, 488,
 };
 
 void AddDescriptors_kodama_5fmsg_2eproto() {
@@ -170,6 +208,12 @@ class RequestData::HasBitSetters {
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int RequestData::kTagIdFieldNumber;
+const int RequestData::kVFieldNumber;
+const int RequestData::kWFieldNumber;
+const int RequestData::kTauFieldNumber;
+const int RequestData::kScenarioFieldNumber;
+const int RequestData::kTargetXFieldNumber;
+const int RequestData::kTargetYFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 RequestData::RequestData()
@@ -181,12 +225,16 @@ RequestData::RequestData(const RequestData& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  tag_id_ = from.tag_id_;
+  ::memcpy(&tag_id_, &from.tag_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&targety_) -
+    reinterpret_cast<char*>(&tag_id_)) + sizeof(targety_));
   // @@protoc_insertion_point(copy_constructor:kodama.RequestData)
 }
 
 void RequestData::SharedCtor() {
-  tag_id_ = 0;
+  ::memset(&tag_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&targety_) -
+      reinterpret_cast<char*>(&tag_id_)) + sizeof(targety_));
 }
 
 RequestData::~RequestData() {
@@ -212,7 +260,9 @@ void RequestData::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  tag_id_ = 0;
+  ::memset(&tag_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&targety_) -
+      reinterpret_cast<char*>(&tag_id_)) + sizeof(targety_));
   _internal_metadata_.Clear();
 }
 
@@ -233,6 +283,48 @@ const char* RequestData::_InternalParse(const char* begin, const char* end, void
       case 1: {
         if (static_cast<::google::protobuf::uint8>(tag) != 8) goto handle_unusual;
         msg->set_tag_id(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 v = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 16) goto handle_unusual;
+        msg->set_v(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 w = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 24) goto handle_unusual;
+        msg->set_w(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 tau = 4;
+      case 4: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 32) goto handle_unusual;
+        msg->set_tau(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 scenario = 6;
+      case 6: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 48) goto handle_unusual;
+        msg->set_scenario(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 targetX = 7;
+      case 7: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 56) goto handle_unusual;
+        msg->set_targetx(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 targetY = 8;
+      case 8: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 64) goto handle_unusual;
+        msg->set_targety(::google::protobuf::internal::ReadVarint(&ptr));
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         break;
       }
@@ -276,6 +368,84 @@ bool RequestData::MergePartialFromCodedStream(
         break;
       }
 
+      // int32 v = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (16 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &v_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 w = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (24 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &w_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 tau = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (32 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &tau_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 scenario = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (48 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &scenario_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 targetX = 7;
+      case 7: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (56 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &targetx_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 targetY = 8;
+      case 8: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (64 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &targety_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -308,6 +478,36 @@ void RequestData::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->tag_id(), output);
   }
 
+  // int32 v = 2;
+  if (this->v() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->v(), output);
+  }
+
+  // int32 w = 3;
+  if (this->w() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->w(), output);
+  }
+
+  // int32 tau = 4;
+  if (this->tau() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->tau(), output);
+  }
+
+  // int32 scenario = 6;
+  if (this->scenario() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->scenario(), output);
+  }
+
+  // int32 targetX = 7;
+  if (this->targetx() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(7, this->targetx(), output);
+  }
+
+  // int32 targetY = 8;
+  if (this->targety() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(8, this->targety(), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -324,6 +524,36 @@ void RequestData::SerializeWithCachedSizes(
   // int32 tag_id = 1;
   if (this->tag_id() != 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->tag_id(), target);
+  }
+
+  // int32 v = 2;
+  if (this->v() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->v(), target);
+  }
+
+  // int32 w = 3;
+  if (this->w() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->w(), target);
+  }
+
+  // int32 tau = 4;
+  if (this->tau() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->tau(), target);
+  }
+
+  // int32 scenario = 6;
+  if (this->scenario() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->scenario(), target);
+  }
+
+  // int32 targetX = 7;
+  if (this->targetx() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(7, this->targetx(), target);
+  }
+
+  // int32 targetY = 8;
+  if (this->targety() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(8, this->targety(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -352,6 +582,48 @@ size_t RequestData::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::Int32Size(
         this->tag_id());
+  }
+
+  // int32 v = 2;
+  if (this->v() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->v());
+  }
+
+  // int32 w = 3;
+  if (this->w() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->w());
+  }
+
+  // int32 tau = 4;
+  if (this->tau() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->tau());
+  }
+
+  // int32 scenario = 6;
+  if (this->scenario() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->scenario());
+  }
+
+  // int32 targetX = 7;
+  if (this->targetx() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->targetx());
+  }
+
+  // int32 targetY = 8;
+  if (this->targety() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->targety());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -384,6 +656,24 @@ void RequestData::MergeFrom(const RequestData& from) {
   if (from.tag_id() != 0) {
     set_tag_id(from.tag_id());
   }
+  if (from.v() != 0) {
+    set_v(from.v());
+  }
+  if (from.w() != 0) {
+    set_w(from.w());
+  }
+  if (from.tau() != 0) {
+    set_tau(from.tau());
+  }
+  if (from.scenario() != 0) {
+    set_scenario(from.scenario());
+  }
+  if (from.targetx() != 0) {
+    set_targetx(from.targetx());
+  }
+  if (from.targety() != 0) {
+    set_targety(from.targety());
+  }
 }
 
 void RequestData::CopyFrom(const ::google::protobuf::Message& from) {
@@ -412,9 +702,323 @@ void RequestData::InternalSwap(RequestData* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(tag_id_, other->tag_id_);
+  swap(v_, other->v_);
+  swap(w_, other->w_);
+  swap(tau_, other->tau_);
+  swap(scenario_, other->scenario_);
+  swap(targetx_, other->targetx_);
+  swap(targety_, other->targety_);
 }
 
 ::google::protobuf::Metadata RequestData::GetMetadata() const {
+  ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_kodama_5fmsg_2eproto);
+  return ::file_level_metadata_kodama_5fmsg_2eproto[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
+void SensorData_Position2D::InitAsDefaultInstance() {
+}
+class SensorData_Position2D::HasBitSetters {
+ public:
+};
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SensorData_Position2D::kXFieldNumber;
+const int SensorData_Position2D::kYFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+SensorData_Position2D::SensorData_Position2D()
+  : ::google::protobuf::Message(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:kodama.SensorData.Position2D)
+}
+SensorData_Position2D::SensorData_Position2D(const SensorData_Position2D& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(nullptr) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&y_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  // @@protoc_insertion_point(copy_constructor:kodama.SensorData.Position2D)
+}
+
+void SensorData_Position2D::SharedCtor() {
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+}
+
+SensorData_Position2D::~SensorData_Position2D() {
+  // @@protoc_insertion_point(destructor:kodama.SensorData.Position2D)
+  SharedDtor();
+}
+
+void SensorData_Position2D::SharedDtor() {
+}
+
+void SensorData_Position2D::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const SensorData_Position2D& SensorData_Position2D::default_instance() {
+  ::google::protobuf::internal::InitSCC(&::scc_info_SensorData_Position2D_kodama_5fmsg_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void SensorData_Position2D::Clear() {
+// @@protoc_insertion_point(message_clear_start:kodama.SensorData.Position2D)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&y_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(y_));
+  _internal_metadata_.Clear();
+}
+
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* SensorData_Position2D::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<SensorData_Position2D*>(object);
+  ::google::protobuf::int32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = ::google::protobuf::io::Parse32(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // int32 x = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 8) goto handle_unusual;
+        msg->set_x(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // int32 y = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 16) goto handle_unusual;
+        msg->set_y(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+bool SensorData_Position2D::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:kodama.SensorData.Position2D)
+  for (;;) {
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // int32 x = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (8 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 y = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (16 & 0xFF)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:kodama.SensorData.Position2D)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:kodama.SensorData.Position2D)
+  return false;
+#undef DO_
+}
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+
+void SensorData_Position2D::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:kodama.SensorData.Position2D)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 x = 1;
+  if (this->x() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->x(), output);
+  }
+
+  // int32 y = 2;
+  if (this->y() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->y(), output);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        _internal_metadata_.unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:kodama.SensorData.Position2D)
+}
+
+::google::protobuf::uint8* SensorData_Position2D::InternalSerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:kodama.SensorData.Position2D)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 x = 1;
+  if (this->x() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->x(), target);
+  }
+
+  // int32 y = 2;
+  if (this->y() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->y(), target);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:kodama.SensorData.Position2D)
+  return target;
+}
+
+size_t SensorData_Position2D::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:kodama.SensorData.Position2D)
+  size_t total_size = 0;
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        _internal_metadata_.unknown_fields());
+  }
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int32 x = 1;
+  if (this->x() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->x());
+  }
+
+  // int32 y = 2;
+  if (this->y() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->y());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void SensorData_Position2D::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:kodama.SensorData.Position2D)
+  GOOGLE_DCHECK_NE(&from, this);
+  const SensorData_Position2D* source =
+      ::google::protobuf::DynamicCastToGenerated<SensorData_Position2D>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:kodama.SensorData.Position2D)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:kodama.SensorData.Position2D)
+    MergeFrom(*source);
+  }
+}
+
+void SensorData_Position2D::MergeFrom(const SensorData_Position2D& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:kodama.SensorData.Position2D)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.x() != 0) {
+    set_x(from.x());
+  }
+  if (from.y() != 0) {
+    set_y(from.y());
+  }
+}
+
+void SensorData_Position2D::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:kodama.SensorData.Position2D)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SensorData_Position2D::CopyFrom(const SensorData_Position2D& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:kodama.SensorData.Position2D)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SensorData_Position2D::IsInitialized() const {
+  return true;
+}
+
+void SensorData_Position2D::Swap(SensorData_Position2D* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void SensorData_Position2D::InternalSwap(SensorData_Position2D* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+}
+
+::google::protobuf::Metadata SensorData_Position2D::GetMetadata() const {
   ::google::protobuf::internal::AssignDescriptors(&::assign_descriptors_table_kodama_5fmsg_2eproto);
   return ::file_level_metadata_kodama_5fmsg_2eproto[kIndexInFileMessages];
 }
@@ -798,9 +1402,8 @@ void SensorData::clear_timestamp() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int SensorData::kPoseFieldNumber;
-const int SensorData::kCentreGridSensorFieldNumber;
-const int SensorData::kNearbyVesselPosesFieldNumber;
-const int SensorData::kHighestVisiblePuckValueFieldNumber;
+const int SensorData::kNearbyRobotPosesFieldNumber;
+const int SensorData::kNearbyTargetPositionsFieldNumber;
 const int SensorData::kTimestampFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -812,7 +1415,8 @@ SensorData::SensorData()
 SensorData::SensorData(const SensorData& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(nullptr),
-      nearby_vessel_poses_(from.nearby_vessel_poses_) {
+      nearby_robot_poses_(from.nearby_robot_poses_),
+      nearby_target_positions_(from.nearby_target_positions_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   if (from.has_pose()) {
     pose_ = new ::kodama::SensorData_Pose2D(*from.pose_);
@@ -824,9 +1428,6 @@ SensorData::SensorData(const SensorData& from)
   } else {
     timestamp_ = nullptr;
   }
-  ::memcpy(&centre_grid_sensor_, &from.centre_grid_sensor_,
-    static_cast<size_t>(reinterpret_cast<char*>(&highest_visible_puck_value_) -
-    reinterpret_cast<char*>(&centre_grid_sensor_)) + sizeof(highest_visible_puck_value_));
   // @@protoc_insertion_point(copy_constructor:kodama.SensorData)
 }
 
@@ -834,8 +1435,8 @@ void SensorData::SharedCtor() {
   ::google::protobuf::internal::InitSCC(
       &scc_info_SensorData_kodama_5fmsg_2eproto.base);
   ::memset(&pose_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&highest_visible_puck_value_) -
-      reinterpret_cast<char*>(&pose_)) + sizeof(highest_visible_puck_value_));
+      reinterpret_cast<char*>(&timestamp_) -
+      reinterpret_cast<char*>(&pose_)) + sizeof(timestamp_));
 }
 
 SensorData::~SensorData() {
@@ -863,7 +1464,8 @@ void SensorData::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  nearby_vessel_poses_.Clear();
+  nearby_robot_poses_.Clear();
+  nearby_target_positions_.Clear();
   if (GetArenaNoVirtual() == nullptr && pose_ != nullptr) {
     delete pose_;
   }
@@ -872,9 +1474,6 @@ void SensorData::Clear() {
     delete timestamp_;
   }
   timestamp_ = nullptr;
-  ::memset(&centre_grid_sensor_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&highest_visible_puck_value_) -
-      reinterpret_cast<char*>(&centre_grid_sensor_)) + sizeof(highest_visible_puck_value_));
   _internal_metadata_.Clear();
 }
 
@@ -904,21 +1503,30 @@ const char* SensorData::_InternalParse(const char* begin, const char* end, void*
             {parser_till_end, object}, ptr - size, ptr));
         break;
       }
-      // float centre_grid_sensor = 2;
+      // repeated .kodama.SensorData.Pose2D nearby_robot_poses = 2;
       case 2: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 21) goto handle_unusual;
-        msg->set_centre_grid_sensor(::google::protobuf::io::UnalignedLoad<float>(ptr));
-        ptr += sizeof(float);
+        if (static_cast<::google::protobuf::uint8>(tag) != 18) goto handle_unusual;
+        do {
+          ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+          GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+          parser_till_end = ::kodama::SensorData_Pose2D::_InternalParse;
+          object = msg->add_nearby_robot_poses();
+          if (size > end - ptr) goto len_delim_till_end;
+          ptr += size;
+          GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->ParseExactRange(
+              {parser_till_end, object}, ptr - size, ptr));
+          if (ptr >= end) break;
+        } while ((::google::protobuf::io::UnalignedLoad<::google::protobuf::uint64>(ptr) & 255) == 18 && (ptr += 1));
         break;
       }
-      // repeated .kodama.SensorData.Pose2D nearby_vessel_poses = 3;
+      // repeated .kodama.SensorData.Position2D nearby_target_positions = 3;
       case 3: {
         if (static_cast<::google::protobuf::uint8>(tag) != 26) goto handle_unusual;
         do {
           ptr = ::google::protobuf::io::ReadSize(ptr, &size);
           GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-          parser_till_end = ::kodama::SensorData_Pose2D::_InternalParse;
-          object = msg->add_nearby_vessel_poses();
+          parser_till_end = ::kodama::SensorData_Position2D::_InternalParse;
+          object = msg->add_nearby_target_positions();
           if (size > end - ptr) goto len_delim_till_end;
           ptr += size;
           GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->ParseExactRange(
@@ -927,16 +1535,9 @@ const char* SensorData::_InternalParse(const char* begin, const char* end, void*
         } while ((::google::protobuf::io::UnalignedLoad<::google::protobuf::uint64>(ptr) & 255) == 26 && (ptr += 1));
         break;
       }
-      // float highest_visible_puck_value = 4;
+      // .google.protobuf.Timestamp timestamp = 4;
       case 4: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 37) goto handle_unusual;
-        msg->set_highest_visible_puck_value(::google::protobuf::io::UnalignedLoad<float>(ptr));
-        ptr += sizeof(float);
-        break;
-      }
-      // .google.protobuf.Timestamp timestamp = 5;
-      case 5: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 42) goto handle_unusual;
+        if (static_cast<::google::protobuf::uint8>(tag) != 34) goto handle_unusual;
         ptr = ::google::protobuf::io::ReadSize(ptr, &size);
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         parser_till_end = ::google::protobuf::Timestamp::_InternalParse;
@@ -988,46 +1589,31 @@ bool SensorData::MergePartialFromCodedStream(
         break;
       }
 
-      // float centre_grid_sensor = 2;
+      // repeated .kodama.SensorData.Pose2D nearby_robot_poses = 2;
       case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (21 & 0xFF)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, &centre_grid_sensor_)));
+        if (static_cast< ::google::protobuf::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+                input, add_nearby_robot_poses()));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // repeated .kodama.SensorData.Pose2D nearby_vessel_poses = 3;
+      // repeated .kodama.SensorData.Position2D nearby_target_positions = 3;
       case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) == (26 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
-                input, add_nearby_vessel_poses()));
+                input, add_nearby_target_positions()));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // float highest_visible_puck_value = 4;
+      // .google.protobuf.Timestamp timestamp = 4;
       case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (37 & 0xFF)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 input, &highest_visible_puck_value_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // .google.protobuf.Timestamp timestamp = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (42 & 0xFF)) {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (34 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                input, mutable_timestamp()));
         } else {
@@ -1069,29 +1655,28 @@ void SensorData::SerializeWithCachedSizes(
       1, HasBitSetters::pose(this), output);
   }
 
-  // float centre_grid_sensor = 2;
-  if (this->centre_grid_sensor() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->centre_grid_sensor(), output);
-  }
-
-  // repeated .kodama.SensorData.Pose2D nearby_vessel_poses = 3;
+  // repeated .kodama.SensorData.Pose2D nearby_robot_poses = 2;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->nearby_vessel_poses_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->nearby_robot_poses_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3,
-      this->nearby_vessel_poses(static_cast<int>(i)),
+      2,
+      this->nearby_robot_poses(static_cast<int>(i)),
       output);
   }
 
-  // float highest_visible_puck_value = 4;
-  if (this->highest_visible_puck_value() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->highest_visible_puck_value(), output);
+  // repeated .kodama.SensorData.Position2D nearby_target_positions = 3;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->nearby_target_positions_size()); i < n; i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3,
+      this->nearby_target_positions(static_cast<int>(i)),
+      output);
   }
 
-  // .google.protobuf.Timestamp timestamp = 5;
+  // .google.protobuf.Timestamp timestamp = 4;
   if (this->has_timestamp()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, HasBitSetters::timestamp(this), output);
+      4, HasBitSetters::timestamp(this), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1114,29 +1699,27 @@ void SensorData::SerializeWithCachedSizes(
         1, HasBitSetters::pose(this), target);
   }
 
-  // float centre_grid_sensor = 2;
-  if (this->centre_grid_sensor() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->centre_grid_sensor(), target);
-  }
-
-  // repeated .kodama.SensorData.Pose2D nearby_vessel_poses = 3;
+  // repeated .kodama.SensorData.Pose2D nearby_robot_poses = 2;
   for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->nearby_vessel_poses_size()); i < n; i++) {
+      n = static_cast<unsigned int>(this->nearby_robot_poses_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, this->nearby_vessel_poses(static_cast<int>(i)), target);
+        2, this->nearby_robot_poses(static_cast<int>(i)), target);
   }
 
-  // float highest_visible_puck_value = 4;
-  if (this->highest_visible_puck_value() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->highest_visible_puck_value(), target);
+  // repeated .kodama.SensorData.Position2D nearby_target_positions = 3;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->nearby_target_positions_size()); i < n; i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        3, this->nearby_target_positions(static_cast<int>(i)), target);
   }
 
-  // .google.protobuf.Timestamp timestamp = 5;
+  // .google.protobuf.Timestamp timestamp = 4;
   if (this->has_timestamp()) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, HasBitSetters::timestamp(this), target);
+        4, HasBitSetters::timestamp(this), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1160,14 +1743,25 @@ size_t SensorData::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .kodama.SensorData.Pose2D nearby_vessel_poses = 3;
+  // repeated .kodama.SensorData.Pose2D nearby_robot_poses = 2;
   {
-    unsigned int count = static_cast<unsigned int>(this->nearby_vessel_poses_size());
+    unsigned int count = static_cast<unsigned int>(this->nearby_robot_poses_size());
     total_size += 1UL * count;
     for (unsigned int i = 0; i < count; i++) {
       total_size +=
         ::google::protobuf::internal::WireFormatLite::MessageSize(
-          this->nearby_vessel_poses(static_cast<int>(i)));
+          this->nearby_robot_poses(static_cast<int>(i)));
+    }
+  }
+
+  // repeated .kodama.SensorData.Position2D nearby_target_positions = 3;
+  {
+    unsigned int count = static_cast<unsigned int>(this->nearby_target_positions_size());
+    total_size += 1UL * count;
+    for (unsigned int i = 0; i < count; i++) {
+      total_size +=
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          this->nearby_target_positions(static_cast<int>(i)));
     }
   }
 
@@ -1178,21 +1772,11 @@ size_t SensorData::ByteSizeLong() const {
         *pose_);
   }
 
-  // .google.protobuf.Timestamp timestamp = 5;
+  // .google.protobuf.Timestamp timestamp = 4;
   if (this->has_timestamp()) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSize(
         *timestamp_);
-  }
-
-  // float centre_grid_sensor = 2;
-  if (this->centre_grid_sensor() != 0) {
-    total_size += 1 + 4;
-  }
-
-  // float highest_visible_puck_value = 4;
-  if (this->highest_visible_puck_value() != 0) {
-    total_size += 1 + 4;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -1222,18 +1806,13 @@ void SensorData::MergeFrom(const SensorData& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  nearby_vessel_poses_.MergeFrom(from.nearby_vessel_poses_);
+  nearby_robot_poses_.MergeFrom(from.nearby_robot_poses_);
+  nearby_target_positions_.MergeFrom(from.nearby_target_positions_);
   if (from.has_pose()) {
     mutable_pose()->::kodama::SensorData_Pose2D::MergeFrom(from.pose());
   }
   if (from.has_timestamp()) {
     mutable_timestamp()->::google::protobuf::Timestamp::MergeFrom(from.timestamp());
-  }
-  if (from.centre_grid_sensor() != 0) {
-    set_centre_grid_sensor(from.centre_grid_sensor());
-  }
-  if (from.highest_visible_puck_value() != 0) {
-    set_highest_visible_puck_value(from.highest_visible_puck_value());
   }
 }
 
@@ -1262,11 +1841,10 @@ void SensorData::Swap(SensorData* other) {
 void SensorData::InternalSwap(SensorData* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  CastToBase(&nearby_vessel_poses_)->InternalSwap(CastToBase(&other->nearby_vessel_poses_));
+  CastToBase(&nearby_robot_poses_)->InternalSwap(CastToBase(&other->nearby_robot_poses_));
+  CastToBase(&nearby_target_positions_)->InternalSwap(CastToBase(&other->nearby_target_positions_));
   swap(pose_, other->pose_);
   swap(timestamp_, other->timestamp_);
-  swap(centre_grid_sensor_, other->centre_grid_sensor_);
-  swap(highest_visible_puck_value_, other->highest_visible_puck_value_);
 }
 
 ::google::protobuf::Metadata SensorData::GetMetadata() const {
@@ -1281,6 +1859,9 @@ namespace google {
 namespace protobuf {
 template<> PROTOBUF_NOINLINE ::kodama::RequestData* Arena::CreateMaybeMessage< ::kodama::RequestData >(Arena* arena) {
   return Arena::CreateInternal< ::kodama::RequestData >(arena);
+}
+template<> PROTOBUF_NOINLINE ::kodama::SensorData_Position2D* Arena::CreateMaybeMessage< ::kodama::SensorData_Position2D >(Arena* arena) {
+  return Arena::CreateInternal< ::kodama::SensorData_Position2D >(arena);
 }
 template<> PROTOBUF_NOINLINE ::kodama::SensorData_Pose2D* Arena::CreateMaybeMessage< ::kodama::SensorData_Pose2D >(Arena* arena) {
   return Arena::CreateInternal< ::kodama::SensorData_Pose2D >(arena);
