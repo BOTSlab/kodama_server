@@ -30,6 +30,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <chrono>
+#include <mutex>
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <google/protobuf/util/time_util.h>
@@ -62,6 +63,8 @@ ConfigParser::Config config;
 Mat frame;
 Mat labelledDetections;
 Mat targetMask;
+Mat displayFrame;
+std::mutex displayFrameMutex;
 
 // BAD: Hard-coded goal position.
 Point goalPosition{310, 245};
@@ -87,11 +90,15 @@ cbar::cyclicbarrier* frameAcquisitionBarrier = new cbar::cyclicbarrier(2,cc);
 cbar::cyclicbarrier* detectorBarrier0 = new cbar::cyclicbarrier(3,cc);
 cbar::cyclicbarrier* detectorBarrier1 = new cbar::cyclicbarrier(3,cc);
 
+/*
+ This function is removed because all UI operations, including waitKey,
+ must be performed on the main thread to comply with macOS requirements.
 void afterImshow() {
-	if (waitKey(1) == 27) {
-		running = false;
-	}
+    if (waitKey(1) == 27) {
+        running = false;
+    }
 }
+*/
 
 /**
  * Video Capture thread function. Continuously updates the FrameBuffer.
@@ -175,129 +182,129 @@ void target_detector_thread() {
  * @param output_csv Flag indicating if robot pose data should be recorded to the csv files. 
  */
 void detection_processor_thread(ConfigParser::Config& config, vector<shared_ptr<Robot>>& robots, vector<CSVWriter>& vessel_pose_csv, vector<CSVWriter>& target_pose_csv, bool output_csv) {
-	auto start_time = chrono::steady_clock::now();
-	Mat targets, displayFrame;
-	Scalar ContourColor(255, 0, 0);
-	Scalar TargetMarkerColor(255, 200, 200);
-	Scalar PuckMarkerColor(0, 255 ,0);
-	Scalar GoalColor(0, 0, 255);
+    auto start_time = chrono::steady_clock::now();
+    Mat targets;
+    Scalar ContourColor(255, 0, 0);
+    Scalar TargetMarkerColor(255, 200, 200);
+    Scalar PuckMarkerColor(0, 255 ,0);
+    Scalar GoalColor(0, 0, 255);
 
-	while (running) {
-		detectorBarrier0->await();
-		detectorBarrier0->reset();
-		
-		auto current_time = chrono::steady_clock::now();
-		targets = targetMask.clone();
-		if(visualize) {
-			displayFrame = labelledDetections.clone();
+    while (running) {
+        detectorBarrier0->await();
+        detectorBarrier0->reset();
+        
+        auto current_time = chrono::steady_clock::now();
+        targets = targetMask.clone();
+        
+        vector<pose2D> robot_poses;
+        for (int i = 0; i < robots.size(); i++) {
+            robot_poses.push_back(robots.at(i)->getPose());
+        }
+        
+        detectorBarrier1->await(); 
+        detectorBarrier1->reset();
 
-			// Create a BGR version of targetMask for display purposes.
-			Mat targetMaskBGR;
-			cvtColor(targetMask, targetMaskBGR, CV_GRAY2BGR);
+        // Detect all targets
+        Mat labelImage(targetMask.size(), CV_32S);
+        Mat stats, centroids;
+        int nLabels = connectedComponentsWithStats(targets, labelImage, stats, centroids, 4, CV_32S);
+        vector<position2D> allTargets;
+        for (int i = 1; i < nLabels; i++) {
+            if (stats.at<int>(i, cv::CC_STAT_AREA) > areaThreshold) {
+                int x = cvRound(centroids.at<double>(i, 0));
+                int y = cvRound(centroids.at<double>(i, 1));
+                allTargets.push_back(position2D(x, y));
+            }
+        }
+        
+        for (int i = 0; i < robots.size(); i++)
+            robots.at(i)->updateSensorValues(allTargets, robot_poses, i);
 
-			// This will highlight pixels in the target colour in white.
-			bitwise_or(targetMaskBGR, displayFrame, displayFrame);
+        if(visualize || output_csv) {
 
-			// Highlight the goal.
-			//addWeighted(goal, 0.1, displayFrame, 0.9, 0, displayFrame);
-		}
-		vector<pose2D> robot_poses;
-		for (int i = 0; i < robots.size(); i++) {
-			robot_poses.push_back(robots.at(i)->getPose());
-		}
-		
-		detectorBarrier1->await(); 
-		detectorBarrier1->reset();
+            if (visualize) {
+                Mat localDisplayFrame = labelledDetections.clone();
 
-		// Detect all targets
-		Mat labelImage(targetMask.size(), CV_32S);
-		Mat stats, centroids;
-		int nLabels = connectedComponentsWithStats(targets, labelImage, stats, centroids, 4, CV_32S);
-		vector<position2D> allTargets;
-		for (int i = 1; i < nLabels; i++) {
-			if (stats.at<int>(i, cv::CC_STAT_AREA) > areaThreshold) {
-				int x = cvRound(centroids.at<double>(i, 0));
-				int y = cvRound(centroids.at<double>(i, 1));
-				allTargets.push_back(position2D(x, y));
-			}
-		}
-		
-		for (int i = 0; i < robots.size(); i++)
-			robots.at(i)->updateSensorValues(allTargets, robot_poses, i);
+                // Create a BGR version of targetMask for display purposes.
+                Mat targetMaskBGR;
+                cvtColor(targetMask, targetMaskBGR, COLOR_GRAY2BGR);
 
-		if(visualize || output_csv) {
+                // This will highlight pixels in the target colour in white.
+                bitwise_or(targetMaskBGR, localDisplayFrame, localDisplayFrame);
 
-			if (visualize) {
-				for(int i = 0; i < allTargets.size(); i++) {
-					position2D & p = allTargets.at(i);
-					circle(displayFrame, Point(p.x_px, p.y_px), 12, PuckMarkerColor, 2);
-				}
+                for(int i = 0; i < allTargets.size(); i++) {
+                    position2D & p = allTargets.at(i);
+                    circle(localDisplayFrame, Point(p.x_px, p.y_px), 12, PuckMarkerColor, 2);
+                }
 
-				// Display the contour from the last connected robot.
-				double tau = requestData.tau() / 1000.0;
+                // Display the contour from the last connected robot.
+                double tau = requestData.tau() / 1000.0;
 
-				// CAN'T GET THIS TO WORK: OpenCV's contour-finding
-				/*
-				std::vector<std::vector<Point>> contours;
-				findContours(scalarField, contours, RETR_LIST, CHAIN_APPROX_NONE);
-				drawContours(displayFrame, contours, 0, TargetMarkerColor); 
-				*/
-			/*
-				for (int j=0; j < scalarField.rows; ++j)
-					for (int i=0; i < scalarField.cols; ++i)
-						if (abs(scalarField.at<uchar>(j, i) / 255.0 - tau) < 0.01) {
-							circle(displayFrame, Point{i, j}, 1, ContourColor, 1);
-						}
-			*/
+                // CAN'T GET THIS TO WORK: OpenCV's contour-finding
+                /*
+                std::vector<std::vector<Point>> contours;
+                findContours(scalarField, contours, RETR_LIST, CHAIN_APPROX_NONE);
+                drawContours(displayFrame, contours, 0, TargetMarkerColor); 
+                */
+            /*
+                for (int j=0; j < scalarField.rows; ++j)
+                    for (int i=0; i < scalarField.cols; ++i)
+                        if (abs(scalarField.at<uchar>(j, i) / 255.0 - tau) < 0.01) {
+                            circle(displayFrame, Point{i, j}, 1, ContourColor, 1);
+                        }
+            */
 
-				// Display the target position from the last connected robot.
-				circle(displayFrame, Point{requestData.targetx(), requestData.targety()}, 5, TargetMarkerColor, 1);
+                // Display the target position from the last connected robot.
+                circle(localDisplayFrame, Point{requestData.targetx(), requestData.targety()}, 5, TargetMarkerColor, 1);
 
-				// Display the goal position as an X.
-				line(displayFrame, goalPosition + Point{-20, -20}, goalPosition + Point{20, 20}, GoalColor, 3);
-				line(displayFrame, goalPosition + Point{-20, 20}, goalPosition + Point{20, -20}, GoalColor, 3);
+                // Display the goal position as an X.
+                line(localDisplayFrame, goalPosition + Point{-20, -20}, goalPosition + Point{20, 20}, GoalColor, 3);
+                line(localDisplayFrame, goalPosition + Point{-20, 20}, goalPosition + Point{20, -20}, GoalColor, 3);
 
-				imshow("detection_processor_thread", displayFrame);
-				afterImshow();
-			}
+                // Safely update the global display frame for the main thread to render.
+                {
+                    std::lock_guard<std::mutex> lock(displayFrameMutex);
+                    displayFrame = localDisplayFrame.clone();
+                }
+            }
 
-			if (output_csv) {
-				double timestamp = chrono::duration_cast<chrono::nanoseconds>(current_time - start_time).count();
-				for(uint i = 0; i < vessel_pose_csv.size(); i++) {
-					vessel_pose_csv.at(i).newRow() << timestamp << robot_poses.at(i).x << robot_poses.at(i).y << robot_poses.at(i).yaw;
-				}
-				target_pose_csv.at(0).newRow() << timestamp << allTargets.size();
-				for(uint i = 0; i < allTargets.size(); i++) {
-					position2D &target = allTargets.at(i);
-					target_pose_csv.at(0) << "" << target.x_px << target.y_px;
-				}
+            if (output_csv) {
+                double timestamp = chrono::duration_cast<chrono::nanoseconds>(current_time - start_time).count();
+                for(uint i = 0; i < vessel_pose_csv.size(); i++) {
+                    vessel_pose_csv.at(i).newRow() << timestamp << robot_poses.at(i).x << robot_poses.at(i).y << robot_poses.at(i).yaw;
+                }
+                target_pose_csv.at(0).newRow() << timestamp << allTargets.size();
+                for(uint i = 0; i < allTargets.size(); i++) {
+                    position2D &target = allTargets.at(i);
+                    target_pose_csv.at(0) << "" << target.x_px << target.y_px;
+                }
 
-				int nRows = targets.rows;
-				int nCols = targets.cols * targets.channels();
-				if (targets.isContinuous()) {
-					nCols *= nRows;
-					nRows = 1;
-				}
-				uint px_count = 0;
-				double px_distance_sum = 0;
-				uchar* px;
-				for(uint i = 0; i < targets.rows; i++) {
-					px = targets.ptr<uchar>(i);
-					for(uint j = 0; j < targets.cols * targets.channels(); j++) {
-						if(px[j] > 0) {
-							px_count++;
-							px_distance_sum += sqrt(pow(config.cInfo.cx - j, 2) + pow(config.cInfo.cy - i, 2));
-						}
-					}
-				}
-				double average_px_distance = 0;
-				if (px_count > 0) {
-					average_px_distance = px_distance_sum/px_count/targets.channels();
-				}
-				target_pose_csv.at(1).newRow() << timestamp << px_count << average_px_distance;
-			}
-		}		
-	}
+                int nRows = targets.rows;
+                int nCols = targets.cols * targets.channels();
+                if (targets.isContinuous()) {
+                    nCols *= nRows;
+                    nRows = 1;
+                }
+                uint px_count = 0;
+                double px_distance_sum = 0;
+                uchar* px;
+                for(uint i = 0; i < targets.rows; i++) {
+                    px = targets.ptr<uchar>(i);
+                    for(uint j = 0; j < targets.cols * targets.channels(); j++) {
+                        if(px[j] > 0) {
+                            px_count++;
+                            px_distance_sum += sqrt(pow(config.cInfo.cx - j, 2) + pow(config.cInfo.cy - i, 2));
+                        }
+                    }
+                }
+                double average_px_distance = 0;
+                if (px_count > 0) {
+                    average_px_distance = px_distance_sum/px_count/targets.channels();
+                }
+                target_pose_csv.at(1).newRow() << timestamp << px_count << average_px_distance;
+            }
+        }		
+    }
 
 	// Cleanup barrier objects
 	delete cc;
@@ -351,9 +358,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Load images.  Make the goal image contain red only.
-	Mat obstacles = imread("../images/live/stadium_one_wall/obstacles.png", IMREAD_GRAYSCALE);
+	Mat obstacles = imread("obstacles.png", IMREAD_GRAYSCALE);
 	bitwise_not(obstacles, freeSpace);
-	scalarField = imread("../images/live/stadium_one_wall/dtg.png", IMREAD_GRAYSCALE);
+	scalarField = imread("travel_time.png", IMREAD_GRAYSCALE);
 	//bitwise_not(imread("../images/live/stadium_one_wall/goal.png", IMREAD_COLOR), goal);
 
 	// This is done just so that a contour won't be shown if there are no robots responding yet.
@@ -390,7 +397,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Forcefully attach socket to the port
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
 	{
 		perror("setsockopt");
 		exit(EXIT_FAILURE);
@@ -403,7 +410,7 @@ int main(int argc, char* argv[]) {
 	address.sin_port = htons( PORT );
 
 	// Forcefully attach socket to the port
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+	if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
 		perror("bind failed");
 		exit(EXIT_FAILURE);
@@ -481,46 +488,66 @@ int main(int argc, char* argv[]) {
 			std::memset(buffer,0,128);
 			delete[] msg;
 		}
-	}
 
-	destroyAllWindows();
+        if (visualize) {
+            Mat frameToShow;
+            {
+                std::lock_guard<std::mutex> lock(displayFrameMutex);
+                if (!displayFrame.empty()) {
+                    frameToShow = displayFrame.clone();
+                }
+            }
+            if (!frameToShow.empty()) {
+                imshow("Kodama Server", frameToShow);
+            }
+            // Process UI events and check for exit key (ESC)
+            if (waitKey(1) == 27) {
+                running = false;
+            }
+        } else {
+            // If not visualizing, prevent the loop from consuming 100% CPU.
+            this_thread::sleep_for(chrono::milliseconds(1));
+        }
+    }
 
-	if (config.output_csv) {
-		auto t = std::time(nullptr);
-		auto tm = *localtime(&t);
-		stringstream dirName;
-		dirName << "cvss_data_";
-		dirName << put_time(&tm, "%Y-%m-%d_%H:%M");
-		mkdir(dirName.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		for (uint i = 0; i < vessel_pose_csv.size(); i++) {
-			stringstream fileName;
-			fileName << dirName.str();
-			fileName << "/";
-			fileName << robots[i]->getLabel();
-			fileName << "_pose_data_";
-			fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
-			fileName << ".csv";
-			vessel_pose_csv[i].writeToFile(fileName.str());
-		}
-		{
-			stringstream fileName;
-			fileName << dirName.str();
-			fileName << "/";
-			fileName << "Target_position_data_";
-			fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
-			fileName << ".csv";
-			target_pose_csv.at(0).writeToFile(fileName.str());
-		}
-		{
-			stringstream fileName;
-			fileName << dirName.str();
-			fileName << "/";
-			fileName << "Target_pixel_distance_data_";
-			fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
-			fileName << ".csv";
-			target_pose_csv.at(1).writeToFile(fileName.str());
-		}
-	}
+    destroyAllWindows();
+
+    if (config.output_csv) {
+        auto t = std::time(nullptr);
+        auto tm = *localtime(&t);
+        stringstream dirName;
+        dirName << "cvss_data_";
+        dirName << put_time(&tm, "%Y-%m-%d_%H:%M");
+        mkdir(dirName.str().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        for (uint i = 0; i < vessel_pose_csv.size(); i++) {
+            stringstream fileName;
+            fileName << dirName.str();
+            fileName << "/";
+            fileName << robots[i]->getLabel();
+            fileName << "_pose_data_";
+            fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
+            fileName << ".csv";
+            vessel_pose_csv[i].writeToFile(fileName.str());
+        }
+        {
+            stringstream fileName;
+            fileName << dirName.str();
+            fileName << "/";
+            fileName << "Target_position_data_";
+            fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
+            fileName << ".csv";
+            target_pose_csv.at(0).writeToFile(fileName.str());
+        }
+        {
+            stringstream fileName;
+            fileName << dirName.str();
+            fileName << "/";
+            fileName << "Target_pixel_distance_data_";
+            fileName << put_time(&tm, "%Y-%m-%d_%H:%M");
+            fileName << ".csv";
+            target_pose_csv.at(1).writeToFile(fileName.str());
+        }
+    }
 	
 	return 0;
 }

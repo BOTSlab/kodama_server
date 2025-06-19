@@ -1,3 +1,5 @@
+build/
+
 kodama_server
 CVSensorSimulator
 !CVSensorSimulator/
